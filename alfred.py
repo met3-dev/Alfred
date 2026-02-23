@@ -16,6 +16,8 @@ Usage:
     python alfred.py --user alice     # Run as a different user
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import argparse
@@ -24,7 +26,9 @@ from dotenv import load_dotenv
 import anthropic
 from mem0 import Memory, MemoryClient
 
-load_dotenv()
+# Load .env from the same directory as this script, regardless of where
+# Python is invoked from (fixes "key not found" when running from another dir).
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 
 ALFRED_SYSTEM_PROMPT = """You are Alfred, a distinguished personal AI butler — wise, warm, and deeply attentive. \

@@ -12,6 +12,8 @@ Usage:
     ANTHROPIC_API_KEY=sk-... python test_memory.py
 """
 
+from __future__ import annotations
+
 import os
 import sys
 import time
@@ -19,7 +21,7 @@ from dotenv import load_dotenv
 import anthropic
 from mem0 import Memory, MemoryClient
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"))
 
 TEST_USER_ID = "alfred_test_user"
 
