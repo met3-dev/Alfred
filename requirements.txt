@@ -1,0 +1,4 @@
+anthropic>=0.83.0
+mem0ai>=1.0.4
+python-dotenv>=1.0.0
+sentence-transformers>=2.0.0
