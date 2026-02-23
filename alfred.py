@@ -136,7 +136,8 @@ def retrieve_memories(mem: Memory | MemoryClient, query: str, user_id: str) -> s
         items = results.get("results", []) if isinstance(results, dict) else (results or [])
         return format_memories(items)
     except Exception as exc:
-        print(f"  [Alfred memory note: retrieval issue — {exc}]", file=sys.stderr)
+        print(f"\n  [Alfred memory WARNING: retrieval failed — {exc}]")
+        print("  [Memories will not be used for this response. Check your API key and network.]\n")
         return ""
 
 
@@ -145,7 +146,22 @@ def store_memories(mem: Memory | MemoryClient, messages: list[dict], user_id: st
     try:
         mem.add(messages=messages, user_id=user_id)
     except Exception as exc:
-        print(f"  [Alfred memory note: storage issue — {exc}]", file=sys.stderr)
+        print(f"\n  [Alfred memory WARNING: storage failed — {exc}]")
+        print("  [This conversation will NOT be remembered. Check your API key and network.]\n")
+
+
+def count_memories(mem: Memory | MemoryClient, user_id: str) -> int:
+    """Return the number of stored memories for the user (0 on error)."""
+    try:
+        all_memories = mem.get_all(user_id=user_id)
+        items = (
+            all_memories.get("results", [])
+            if isinstance(all_memories, dict)
+            else (all_memories or [])
+        )
+        return len(items)
+    except Exception:
+        return 0
 
 
 def show_all_memories(mem: Memory | MemoryClient, user_id: str) -> None:
@@ -221,10 +237,16 @@ def chat(user_id: str) -> None:
     # Conversation history for the current session (Claude message format)
     conversation: list[dict] = []
 
+    memory_count = count_memories(mem, user_id)
+
     print("\n" + "=" * 60)
     print("  Alfred — Your Personal AI Butler")
     print("  Powered by Claude + Mem0 persistent memory")
     print(f"  Serving: {user_id}")
+    if memory_count > 0:
+        print(f"  Memories loaded from disk: {memory_count}")
+    else:
+        print("  Memories loaded from disk: 0  (first session, or no memories stored yet)")
     print("  Type 'quit' or 'exit' to end the session")
     print("  Type 'memories' to see what Alfred remembers")
     print("=" * 60 + "\n")
