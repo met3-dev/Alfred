@@ -22,6 +22,7 @@ import os
 import sys
 import argparse
 from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 import anthropic
 from mem0 import Memory, MemoryClient
@@ -62,9 +63,12 @@ def _local_mem0_config(anthropic_api_key: str) -> dict:
       - Qdrant (on-disk) as the vector store
       - SQLite for history
     """
-    qdrant_path = os.path.expanduser("~/.alfred/qdrant")
-    db_path = os.path.expanduser("~/.alfred/alfred_memory.db")
-    os.makedirs(qdrant_path, exist_ok=True)
+    alfred_dir = Path.home() / ".alfred"
+    qdrant_path = alfred_dir / "qdrant"
+    db_path = alfred_dir / "alfred_memory.db"
+
+    alfred_dir.mkdir(parents=True, exist_ok=True)
+    qdrant_path.mkdir(parents=True, exist_ok=True)
 
     return {
         "llm": {
@@ -88,11 +92,11 @@ def _local_mem0_config(anthropic_api_key: str) -> dict:
             "config": {
                 "collection_name": "alfred_memories",
                 "on_disk": True,
-                "path": qdrant_path,
+                "path": str(qdrant_path),
                 "embedding_model_dims": 384,
             },
         },
-        "history_db_path": db_path,
+        "history_db_path": str(db_path),
         "version": "v1.1",
     }
 
